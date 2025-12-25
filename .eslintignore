@@ -1,0 +1,45 @@
+# Build outputs
+build/
+dist/
+.next/
+.nuxt/
+.vuepress/dist/
+.docusaurus/
+
+# Dependencies
+node_modules/
+
+# Environment files
+.env*
+.env.example
+
+# Logs
+*.log
+logs/
+
+# Cache
+.cache
+.parcel-cache
+.fusebox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+*.lcov
+.nyc_output
+
+# Testing
+.vscode-test/
+
+# Temporary files
+*.tmp
+*.temp

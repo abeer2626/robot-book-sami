@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="robotGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#93c5fd;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Square background with rounded corners -->
+  <rect width="120" height="120" rx="15" fill="url(#bgGradient)"/>
+
+  <!-- Book/Textbook base -->
+  <rect x="20" y="50" width="80" height="50" rx="5" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/>
+
+  <!-- Book pages -->
+  <rect x="25" y="55" width="70" height="40" rx="3" fill="white"/>
+  <line x1="60" y1="55" x2="60" y2="95" stroke="#e5e7eb" stroke-width="1"/>
+
+  <!-- Robot head -->
+  <rect x="45" y="30" width="30" height="25" rx="5" fill="url(#robotGradient)"/>
+
+  <!-- Robot eyes -->
+  <circle cx="52" cy="42" r="4" fill="#1e293b"/>
+  <circle cx="68" cy="42" r="4" fill="#1e293b"/>
+
+  <!-- Robot antenna -->
+  <line x1="60" y1="30" x2="60" y2="20" stroke="#60a5fa" stroke-width="2"/>
+  <circle cx="60" cy="18" r="3" fill="#fbbf24"/>
+
+  <!-- Robot body extending into book -->
+  <rect x="50" y="55" width="20" height="20" rx="3" fill="url(#robotGradient)"/>
+
+  <!-- Robot arms -->
+  <rect x="35" y="58" width="12" height="4" rx="2" fill="#60a5fa"/>
+  <rect x="73" y="58" width="12" height="4" rx="2" fill="#60a5fa"/>
+
+  <!-- Code/Equation symbols on book -->
+  <text x="35" y="72" font-family="monospace" font-size="8" fill="#6366f1">&lt;/&gt;</text>
+  <text x="75" y="72" font-family="monospace" font-size="8" fill="#6366f1">{∇}</text>
+
+  <!-- Subtle gear symbol -->
+  <g transform="translate(85, 25) scale(0.3)">
+    <path d="M0,-20 L5,-15 L5,-10 L10,-10 L15,-5 L10,0 L10,5 L5,5 L5,10 L0,15 L-5,10 L-5,5 L-10,5 L-15,0 L-10,-5 L-10,-10 L-5,-10 L-5,-15 Z"
+          fill="#f59e0b" opacity="0.7"/>
+  </g>
+</svg>

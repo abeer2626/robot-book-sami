@@ -1,0 +1,13 @@
+#!/bin/sh
+# Pre-build hook to rebuild search index before site build
+
+echo "Building search index..."
+node scripts/build-search-index.js
+
+# Check if search index was created successfully
+if [ ! -f "static/search-index.json" ]; then
+    echo "Error: Search index build failed!"
+    exit 1
+fi
+
+echo "Search index built successfully!"

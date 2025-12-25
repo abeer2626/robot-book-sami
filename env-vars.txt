@@ -1,0 +1,58 @@
+# REQUIRED ENVIRONMENT VARIABLES FOR RAILWAY DEPLOYMENT
+# Copy and paste these into Railway project settings
+
+# ========================================
+# OpenAI Configuration
+# ========================================
+OPENAI_API_KEY=sk-your-actual-openai-api-key-here
+OPENAI_ORG_ID=your-openai-org-id-here
+
+# ========================================
+# Database Configuration
+# ========================================
+NEON_DATABASE_URL=postgresql://user:password@host:port/dbname?sslmode=require
+NEON_POOLER_URL=postgresql://user:password@host:5432/dbname?sslmode=require
+
+# ========================================
+# Vector Database Configuration
+# ========================================
+QDRANT_URL=https://your-qdrant-cluster-url.qdrant.tech
+QDRANT_API_KEY=your-qdrant-api-key-here
+
+# ========================================
+# Application Configuration
+# ========================================
+SECRET_KEY=your-32-character-secret-key-here
+ENVIRONMENT=production
+PORT=8000
+
+# ========================================
+# Optional Configuration
+# ========================================
+REDIS_URL=redis://localhost:6379
+RATE_LIMIT_REQUESTS_PER_MINUTE=10
+RATE_LIMIT_BURST=20
+LOG_LEVEL=INFO
+
+# ========================================
+# HOW TO GET THESE VALUES:
+# ========================================
+#
+# OpenAI:
+# - Visit https://platform.openai.com/api-keys
+# - Create a new API key
+# - Copy your Organization ID from account settings
+#
+# Neon Database:
+# - Visit https://neon.tech
+# - Create a new PostgreSQL project
+# - Copy the connection string
+#
+# Qdrant:
+# - Visit https://cloud.qdrant.io
+# - Create a new cluster
+# - Copy the cluster URL and API key
+#
+# SECRET_KEY:
+# - Generate using: openssl rand -hex 32
+# - Or use an online generator

@@ -1,0 +1,262 @@
+.responsiveLayout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Mobile Header */
+.mobileHeader {
+  background: var(--ifm-color-primary);
+  color: white;
+  padding: 1rem;
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mobileHeaderContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: var(--ifm-container-width);
+  margin: 0 auto;
+}
+
+.mobileHeader .logo {
+  color: white;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.menuToggle {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.menuToggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Main Layout */
+.layoutContainer {
+  display: flex;
+  max-width: var(--ifm-container-width);
+  margin: 0 auto;
+  width: 100%;
+  min-height: calc(100vh - 60px);
+}
+
+/* Sidebar */
+.sidebar {
+  width: 320px;
+  background: var(--ifm-color-emphasis-0);
+  border-right: 1px solid var(--ifm-color-emphasis-200);
+  overflow-y: auto;
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  transition: transform 0.3s ease;
+}
+
+.sidebarContent {
+  padding: 1.5rem;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* Main Content */
+.mainContent {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.contentWrapper {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Mobile Navigation Overlay */
+.mobileNavOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.mobileNavOverlay.active {
+  display: block;
+  opacity: 1;
+}
+
+.mobileNav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 80%;
+  max-width: 320px;
+  background: white;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+}
+
+.mobileNavOverlay.active .mobileNav {
+  transform: translateX(0);
+}
+
+.mobileNavClose {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  z-index: 10;
+  color: var(--ifm-color-emphasis-800);
+}
+
+.mobileNavClose:hover {
+  background: var(--ifm-color-emphasis-100);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .sidebar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+    z-index: 200;
+    height: calc(100vh - 60px);
+    border-right: 1px solid var(--ifm-color-emphasis-200);
+  }
+
+  .sidebar.active {
+    transform: translateX(0);
+  }
+
+  .mainContent {
+    flex: 1;
+    padding: 2rem;
+  }
+
+  .contentWrapper {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobileHeader {
+    display: block;
+  }
+
+  .layoutContainer {
+    position: relative;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .mainContent {
+    padding: 1rem;
+    padding-top: 0;
+  }
+
+  .contentWrapper {
+    padding: 0 1rem;
+  }
+
+  .sidebarContent {
+    padding: 1rem;
+  }
+
+  .mobileNav {
+    width: 90%;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobileNavOverlay {
+    display: none !important;
+  }
+}
+
+/* Dark mode support */
+[data-theme='dark'] {
+  .mobileHeader {
+    background: var(--ifm-color-primary-dark);
+  }
+
+  .sidebar {
+    background: var(--ifm-color-emphasis-900);
+    border-right-color: var(--ifm-color-emphasis-700);
+  }
+
+  .mobileNav {
+    background: var(--ifm-color-emphasis-900);
+  }
+
+  .mobileNavClose {
+    color: var(--ifm-color-emphasis-200);
+  }
+
+  .mobileNavClose:hover {
+    background: var(--ifm-color-emphasis-800);
+  }
+}
+
+/* Animation for smooth transitions */
+.sidebar {
+  transition: transform 0.3s ease-in-out;
+}
+
+.mobileNav {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Loading state */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Print styles */
+@media print {
+  .mobileHeader,
+  .sidebar,
+  .mobileNavOverlay {
+    display: none !important;
+  }
+
+  .mainContent {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .contentWrapper {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+}

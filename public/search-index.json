@@ -1,0 +1,48 @@
+{
+  "documents": [
+    {
+      "id": "module-01-intro",
+      "title": "Introduction to Robotics",
+      "type": "module",
+      "module": "module-01",
+      "url": "/docs/module-01",
+      "description": "Introduction to robotics, components, and AI fundamentals",
+      "keywords": [
+        "robotics",
+        "introduction",
+        "foundations"
+      ],
+      "headings": [],
+      "content": "",
+      "learningObjectives": [],
+      "matches": {},
+      "highlights": []
+    },
+    {
+      "id": "module-02-intro",
+      "title": "Core Concepts in Robotics",
+      "type": "module",
+      "module": "module-02",
+      "url": "/docs/module-02",
+      "description": "Motion planning, control systems, and perception",
+      "keywords": [
+        "motion",
+        "control",
+        "perception"
+      ],
+      "headings": [],
+      "content": "",
+      "learningObjectives": [],
+      "matches": {},
+      "highlights": []
+    }
+  ],
+  "metadata": {
+    "totalDocuments": 2,
+    "lastUpdated": "2025-12-20T06:11:49.034Z",
+    "modules": [
+      "module-01",
+      "module-02"
+    ]
+  }
+}

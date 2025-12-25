@@ -1,0 +1,521 @@
+openapi: 3.0.3
+info:
+  title: RAG Chatbot API
+  description: API for book content question-answering with retrieval-augmented generation
+  version: 1.0.0
+  contact:
+    name: ROBOTIC-BOOK Project
+    email: support@robotic-book.com
+
+servers:
+  - url: https://api.robotic-book.com/v1
+    description: Production server
+  - url: http://localhost:8000/v1
+    description: Development server
+
+paths:
+  /chat:
+    post:
+      summary: Ask a question about the book content
+      description: Submit a question and receive an AI-generated answer based solely on book content
+      operationId: askQuestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              generalQuestion:
+                summary: General book question
+                value:
+                  sessionId: "550e8400-e29b-41d4-a716-446655440000"
+                  query: "What are the main components of a robot?"
+              selectedText:
+                summary: Question about selected text
+                value:
+                  sessionId: "550e8400-e29b-41d4-a716-446655440000"
+                  query: "How does this work?"
+                  selectedText: "The PID controller uses proportional, integral, and derivative terms"
+                  selectedTextLocation:
+                    chapterId: "ch-02-03"
+                    startOffset: 1234
+                    endOffset: 1300
+      responses:
+        '200':
+          description: Successful response with answer and citations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              examples:
+                successful:
+                  summary: Successful answer
+                  value:
+                    sessionId: "550e8400-e29b-41d4-a716-446655440000"
+                    responseId: "550e8400-e29b-41d4-a716-446655440001"
+                    answer: "According to the book, robots consist of three main components..."
+                    citations:
+                      - chapterId: "ch-02-01"
+                        text: "A robot has three main components: sensors, actuators, and controllers"
+                        location:
+                          page: 45
+                          section: "2.1 Basic Components"
+                    confidenceScore: 0.95
+                    usedOnlySelectedText: false
+                    processingTime: 1250
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /chat/{sessionId}/feedback:
+    post:
+      summary: Submit feedback for a response
+      description: Rate and provide feedback on chatbot responses
+      operationId: submitFeedback
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Session identifier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackRequest'
+      responses:
+        '201':
+          description: Feedback submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /sessions/{sessionId}:
+    get:
+      summary: Get session information
+      description: Retrieve session details and chat history
+      operationId: getSession
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Session details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionDetails'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete session and all data
+      description: Permanently delete a session and all associated data (GDPR compliance)
+      operationId: deleteSession
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Session deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Check API health and dependency status
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+        '503':
+          description: Service or dependency unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+
+  /search:
+    post:
+      summary: Search book content
+      description: Search for relevant content without AI generation
+      operationId: searchContent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - sessionId
+        - query
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+          description: Unique session identifier
+        query:
+          type: string
+          maxLength: 1000
+          description: The question to ask about the book
+        selectedText:
+          type: string
+          maxLength: 5000
+          description: Optional selected text to constrain the answer
+        selectedTextLocation:
+          $ref: '#/components/schemas/TextLocation'
+        context:
+          type: object
+          description: Additional context for the query
+          properties:
+            chapterId:
+              type: string
+              description: Current chapter being viewed
+            previousQueries:
+              type: array
+              items:
+                type: string
+              description: Previous queries in this session
+
+    ChatResponse:
+      type: object
+      required:
+        - sessionId
+        - responseId
+        - answer
+        - citations
+        - confidenceScore
+        - usedOnlySelectedText
+        - processingTime
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        responseId:
+          type: string
+          format: uuid
+        answer:
+          type: string
+          maxLength: 2000
+          description: The AI-generated answer
+        citations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Citation'
+          minItems: 1
+          description: List of citations for the answer
+        confidenceScore:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Confidence score of the answer
+        usedOnlySelectedText:
+          type: boolean
+          description: Whether the answer used only the selected text
+        processingTime:
+          type: integer
+          description: Processing time in milliseconds
+        modelInfo:
+          type: object
+          properties:
+            model:
+              type: string
+              description: AI model used
+            temperature:
+              type: number
+              description: Temperature setting used
+
+    Citation:
+      type: object
+      required:
+        - chapterId
+        - text
+        - location
+      properties:
+        chapterId:
+          type: string
+          description: ID of the chapter containing the citation
+        text:
+          type: string
+          description: Exact quote from the book
+        location:
+          $ref: '#/components/schemas/TextLocation'
+        relevanceScore:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Relevance score of this citation
+
+    TextLocation:
+      type: object
+      required:
+        - chapterId
+      properties:
+        chapterId:
+          type: string
+          description: Chapter identifier
+        startOffset:
+          type: integer
+          description: Character offset within chapter
+        endOffset:
+          type: integer
+          description: End character offset
+        page:
+          type: integer
+          description: Page number if applicable
+        section:
+          type: string
+          description: Section name if available
+
+    FeedbackRequest:
+      type: object
+      required:
+        - responseId
+        - rating
+      properties:
+        responseId:
+          type: string
+          format: uuid
+          description: ID of the response being rated
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: User rating (1-5)
+        comment:
+          type: string
+          maxLength: 500
+          description: Optional feedback comment
+        category:
+          type: string
+          enum: [helpful, incorrect, unclear, offensive]
+          description: Feedback category
+
+    FeedbackResponse:
+      type: object
+      properties:
+        feedbackId:
+          type: string
+          format: uuid
+          description: ID of the submitted feedback
+        message:
+          type: string
+          description: Confirmation message
+
+    SessionDetails:
+      type: object
+      required:
+        - sessionId
+        - createdAt
+        - status
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        lastActivity:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [active, closed, expired]
+        queryCount:
+          type: integer
+          description: Number of queries in this session
+        averageRating:
+          type: number
+          description: Average rating for responses in this session
+
+    HealthCheck:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        components:
+          type: object
+          properties:
+            database:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [healthy, unhealthy]
+                responseTime:
+                  type: number
+            vectorStore:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [healthy, unhealthy]
+                documentCount:
+                  type: integer
+            llm:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [healthy, unhealthy, rate_limited]
+                model:
+                  type: string
+
+    SearchRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          maxLength: 1000
+          description: Search query
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 10
+          description: Maximum number of results
+        filters:
+          type: object
+          description: Search filters
+          properties:
+            chapterId:
+              type: string
+              description: Limit search to specific chapter
+
+    SearchResponse:
+      type: object
+      required:
+        - results
+        - total
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              chapterId:
+                type: string
+              text:
+                type: string
+              location:
+                $ref: '#/components/schemas/TextLocation'
+              score:
+                type: number
+                description: Relevance score
+        total:
+          type: integer
+          description: Total number of matching results
+        queryTime:
+          type: integer
+          description: Search time in milliseconds
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid input
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string
+              details:
+                type: object
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string
+
+    RateLimited:
+      description: Too many requests - rate limit exceeded
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string
+              retryAfter:
+                type: integer
+                description: Seconds to wait before retrying
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string
+              requestId:
+                type: string
+                format: uuid
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+security:
+  - ApiKeyAuth: []

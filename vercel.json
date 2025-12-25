@@ -1,0 +1,44 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    },
+    {
+      "src": "rag-backend/requirements.txt",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "package.json"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "rag-backend/app/main.py"
+    }
+  ],
+  "env": {
+    "OPENAI_API_KEY": "@openai_api_key",
+    "OPENAI_ORG_ID": "@openai_org_id",
+    "NEON_DATABASE_URL": "@neon_database_url",
+    "NEON_DATABASE_URL_DIRECT": "@neon_database_url_direct",
+    "QDRANT_URL": "@qdrant_url",
+    "QDRANT_API_KEY": "@qdrant_api_key",
+    "REDIS_URL": "@redis_url"
+  },
+  "functions": {
+    "rag-backend/app/main.py": {
+      "runtime": "python3.11"
+    }
+  },
+  "regions": ["iad1", "hnd1", "gru1", "sfo1"],
+  "github": {
+    "silent": true
+  }
+}

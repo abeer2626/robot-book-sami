@@ -1,0 +1,331 @@
+openapi: 3.0.3
+info:
+  title: RAG Chatbot API
+  description: |
+    Retrieval-Augmented Generation chatbot for book content
+
+    ## Features
+    - Semantic search through book content
+    - Citations for all responses
+    - Selected-text context queries
+    - GDPR compliant anonymous sessions
+    - Rate limiting (10 requests/minute)
+
+    ## Authentication
+    Currently no authentication required (subject to change).
+
+    ## Rate Limits
+    - 10 requests per minute per IP address
+    - Responses include `Retry-After` header when rate limited
+  version: 1.0.0
+  contact:
+    name: ROBOTIC-BOOK Team
+    email: support@robotic-book.com
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://rag-chatbot-api.example.com
+    description: Production server
+
+paths:
+  /api/chat:
+    post:
+      summary: Submit chat query
+      description: |
+        Submit a question to the chatbot. The system will:
+        1. Search the book content for relevant information
+        2. Generate an answer based only on the book content
+        3. Provide citations for all information used
+        4. Respect any selected-text context if provided
+      operationId: chat
+      tags:
+        - Chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              simple_question:
+                summary: Simple question about robotics
+                value:
+                  query: "What are the main components of a robot?"
+              with_selected_text:
+                summary: Question about specific text
+                value:
+                  query: "What does this mean?"
+                  context:
+                    selectedText: "Robots are programmable machines capable of carrying out a complex series of actions automatically."
+                    currentPage: "/module-01/what-is-robotics"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              examples:
+                simple_answer:
+                  summary: Answer with citations
+                  value:
+                    answer: "The main components of a robot include sensors for perception, actuators for movement, a control system for processing, and a power system for energy."
+                    citations:
+                      - title: "Chapter 2: Robot Components"
+                        url: "/module-01/robot-components"
+                        snippet: "Robots consist of several key components: 1) Sensors for perceiving the environment, 2) Actuators for movement, 3) Control systems for processing..."
+                    relatedQuestions:
+                      - "How do sensors work in robots?"
+                      - "What types of actuators are used?"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/health:
+    get:
+      summary: Check service health
+      description: Check the health of all backend services
+      operationId: health
+      tags:
+        - System
+      responses:
+        '200':
+          description: All services healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "healthy"
+                timestamp: "2025-01-14T10:30:00Z"
+                services:
+                  database: "healthy"
+                  vector_db: "healthy"
+                  openai: "healthy"
+                  redis: "healthy"
+                version: "1.0.0"
+
+  /api/metrics:
+    get:
+      summary: Get Prometheus metrics
+      description: Retrieve Prometheus metrics for monitoring
+      operationId: metrics
+      tags:
+        - System
+      responses:
+        '200':
+          description: Metrics in Prometheus format
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: User's question
+          minLength: 1
+          maxLength: 1000
+          example: "What is reinforcement learning?"
+        context:
+          type: object
+          description: Optional context for the query
+          properties:
+            selectedText:
+              type: string
+              description: User-selected text for context
+              example: "Reinforcement Learning (RL) is an approach where robots learn through interaction with their environment."
+            currentPage:
+              type: string
+              format: uri
+              description: Current page URL
+              example: "/module-01/ai-fundamentals"
+            conversationHistory:
+              type: array
+              maxItems: 10
+              items:
+                $ref: '#/components/schemas/ChatHistoryItem'
+
+    ChatHistoryItem:
+      type: object
+      required:
+        - role
+        - content
+      properties:
+        role:
+          type: string
+          enum: [user, assistant]
+          example: "user"
+        content:
+          type: string
+          example: "How do robots work?"
+
+    ChatResponse:
+      type: object
+      required:
+        - answer
+        - citations
+      properties:
+        answer:
+          type: string
+          description: Chatbot's response based on book content
+          example: "Reinforcement Learning is a machine learning approach where robots learn optimal behaviors through trial and error by receiving rewards for desired actions."
+        citations:
+          type: array
+          description: Sources for the information provided
+          minItems: 1
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/Citation'
+        relatedQuestions:
+          type: array
+          description: Suggested follow-up questions
+          maxItems: 3
+          items:
+            type: string
+          example:
+            - "What is the difference between RL and supervised learning?"
+            - "How is RL used in robot navigation?"
+
+    Citation:
+      type: object
+      required:
+        - title
+        - url
+      properties:
+        title:
+          type: string
+          description: Title of the source
+          example: "Chapter 3: AI Fundamentals"
+        url:
+          type: string
+          format: uri
+          description: Link to the source
+          example: "/module-01/ai-fundamentals#reinforcement-learning"
+        snippet:
+          type: string
+          description: Brief excerpt from the source
+          example: "RL enables robots to learn optimal behaviors through trial and error."
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - services
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-01-14T10:30:00Z"
+        services:
+          type: object
+          properties:
+            database:
+              type: string
+              enum: [healthy, unhealthy]
+              description: PostgreSQL connection status
+            vector_db:
+              type: string
+              enum: [healthy, unhealthy]
+              description: Qdrant connection status
+            openai:
+              type: string
+              enum: [healthy, unhealthy, rate_limited]
+              description: OpenAI API status
+            redis:
+              type: string
+              enum: [healthy, unhealthy]
+              description: Redis connection status
+        version:
+          type: string
+          example: "1.0.0"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Query is required and must be between 1 and 1000 characters"
+        request_id:
+          type: string
+          format: uuid
+          description: Unique request ID for tracking
+          example: "550e8400-e29b-41d4-a716-446655440000"
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            validation_error:
+              summary: Query validation failed
+              value:
+                error: "VALIDATION_ERROR"
+                message: "Query is required and must be between 1 and 1000 characters"
+                request_id: "550e8400-e29b-41d4-a716-446655440000"
+
+    RateLimited:
+      description: Too many requests
+      headers:
+        Retry-After:
+          description: Seconds to wait before retrying
+          schema:
+            type: integer
+            example: 60
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "RATE_LIMITED"
+            message: "Rate limit exceeded. Please try again later."
+            request_id: "550e8400-e29b-41d4-a716-446655440000"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "INTERNAL_ERROR"
+            message: "An unexpected error occurred. Please try again later."
+            request_id: "550e8400-e29b-41d4-a716-446655440000"
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication (currently not required)
+
+security:
+  - {}  # No security required currently
+  - ApiKeyAuth: []  # Optional API key for future use
