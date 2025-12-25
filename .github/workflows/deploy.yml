@@ -2,9 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [1-robotics-textbook]
+    branches: [master]
   pull_request:
-    branches: [1-robotics-textbook]
+    branches: [master]
   release:
     types: [published]
 
