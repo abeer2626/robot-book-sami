@@ -34,6 +34,11 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Set up environment variables
+      run: |
+        echo "DEPLOY_URL=https://abeer2626.github.io" >> $GITHUB_ENV
+        echo "DEPLOY_BASE_URL=/robot-book-sami" >> $GITHUB_ENV
+
     - name: Build documentation
       run: npm run build
 

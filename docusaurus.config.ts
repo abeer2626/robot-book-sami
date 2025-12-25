@@ -6,8 +6,8 @@ const config: Config = {
   tagline: 'A Comprehensive Guide to Physical Humanoid Robotics and AI',
   favicon: 'img/favicon.svg',
 
-  url: 'https://abeer2626.github.io',
-  baseUrl: '/robot-book-sami',
+  url: process.env.DEPLOY_URL || 'https://abeer2626.github.io',
+  baseUrl: process.env.DEPLOY_BASE_URL || '/robot-book-sami',
 
   organizationName: 'abeer2626',
   projectName: 'robot-book-sami',
