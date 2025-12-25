@@ -9,5 +9,8 @@
     "src/",
     "docs/",
     "scripts/"
-  ]
+  ],
+  "paths": {
+    "@site/src/lib/*": ["src/lib/*"]
+  }
 }

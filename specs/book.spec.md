@@ -27,6 +27,11 @@ Create a comprehensive technical book about robotics/AI that serves as both educ
 - Content updates propagate to published site within minutes
 - Book maintains professional presentation across all devices
 
+## Clarifications
+
+### Session 2025-12-25
+- Q: What is the preferred approach for baseUrl configuration in Docusaurus? → A: Use environment variable for maximum flexibility
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Author Initialize Book (Priority: P1)
@@ -93,6 +98,7 @@ As a reader, I want to access the book online with intuitive navigation so that 
 - **DR-003**: Navigation MUST be automatically generated from file structure
 - **DR-004**: Content MUST be searchable within the deployed site
 - **DR-005**: Site MUST support dark/light theme switching
+- **DR-006**: baseUrl MUST be configurable via environment variable for deployment flexibility
 
 ### Content Boundaries
 

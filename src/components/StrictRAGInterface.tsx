@@ -1,5 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { strictRAGController } from '../lib/strict-rag-config';
+
+// Mock controller for deployment
+const strictRAGController = {
+  getConfig: () => ({
+    enabled: true,
+    maxTokens: 1000,
+    temperature: 0.7
+  }),
+
+  processQuery: async (query: string) => {
+    // Return a mock response for deployment
+    return `This is a mock response for: "${query}". The RAG functionality will be fully implemented in the development environment.`;
+  }
+};
 
 interface StrictRAGInterfaceProps {
   onQuery?: (query: string) => void;

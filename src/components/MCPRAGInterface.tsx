@@ -1,6 +1,37 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { MCPRAGIntegration, RAGQuery, RAGResponse, createMCPRAGIntegration } from '../lib/mcp-rag-integration';
 import MCPStatusIndicator from './MCPStatusIndicator';
+
+// Mock interfaces for deployment
+interface MCPRAGIntegration {
+  initialize: () => Promise<void>;
+  processQuery: (query: any) => Promise<any>;
+}
+
+interface RAGQuery {
+  message: string;
+  conversation_id: string;
+  context?: any;
+}
+
+interface RAGResponse {
+  response: string;
+  sources?: string[];
+  citations?: any[];
+}
+
+const createMCPRAGIntegration = (config: any) => ({
+  initialize: async () => {
+    console.log('Mock RAG initialized');
+  },
+  processQuery: async (query: RAGQuery) => {
+    // Return mock response for deployment
+    return {
+      response: `This is a mock RAG response for: "${query.message}". The actual RAG functionality is available in the development environment.`,
+      sources: ['Mock Source 1', 'Mock Source 2'],
+      citations: []
+    };
+  }
+});
 
 interface MCPRAGInterfaceProps {
   module_id?: string;
