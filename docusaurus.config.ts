@@ -7,10 +7,10 @@ const config: Config = {
   favicon: 'img/favicon.svg',
 
   url: 'https://abeer2626.github.io',
-  baseUrl: '/humanoid-robotics-book',
+  baseUrl: '/robot-book-sami',
 
   organizationName: 'abeer2626',
-  projectName: 'humanoid-robotics-book',
+  projectName: 'robot-book-sami',
 
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
